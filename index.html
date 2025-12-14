@@ -174,7 +174,7 @@
         <!-- Content -->
         <div class="relative z-10 text-center px-4 max-w-3xl">
           <h1
-            class="font-serif text-5xl md:text-7xl text-white leading-tight mb-6 drop-shadow-lg"
+            class="font-serif text-5xl md:text-7xl text-zoori-500 leading-tight mb-6 drop-shadow-lg"
           >
             Walk with Confidence
           </h1>
@@ -196,10 +196,18 @@
       <!-- 2. Collection Section (Revised: 8 items, Mobile Slider, No Tags) -->
       <section class="py-20 bg-white overflow-hidden">
         <div class="container mx-auto px-4 lg:px-8">
-          <div class="text-center mb-12">
+          <div
+            class="flex justify-between items-end mb-6 md:block md:text-center md:mb-12"
+          >
             <h2 class="font-serif text-3xl md:text-4xl text-gray-900 italic">
               Latest Collection
             </h2>
+            <button
+              onclick="navigateTo('shop')"
+              class="md:hidden text-xs font-bold uppercase tracking-widest border-b border-gray-900 pb-1"
+            >
+              View All
+            </button>
           </div>
 
           <!-- Container: Flex for Mobile Slider, Grid for Desktop -->
@@ -268,12 +276,32 @@
             </div>
           </div>
         </div>
+        <!-- Controls -->
+        <button
+          onclick="prevSlide()"
+          class="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 text-white hover:text-zoori-500 transition duration-300"
+        >
+          <i class="fa-solid fa-chevron-left text-3xl"></i>
+        </button>
+        <button
+          onclick="nextSlide()"
+          class="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 text-white hover:text-zoori-500 transition duration-300"
+        >
+          <i class="fa-solid fa-chevron-right text-3xl"></i>
+        </button>
+
         <!-- Indicators -->
         <div
           class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-20"
         >
-          <button class="w-2 h-2 rounded-full bg-white opacity-100"></button>
-          <button class="w-2 h-2 rounded-full bg-white opacity-50"></button>
+          <button
+            onclick="goToSlide(0)"
+            class="w-2 h-2 rounded-full bg-white opacity-100 transition indicator-btn"
+          ></button>
+          <button
+            onclick="goToSlide(1)"
+            class="w-2 h-2 rounded-full bg-white opacity-50 transition indicator-btn"
+          ></button>
         </div>
       </section>
 
@@ -691,9 +719,6 @@
                 id="detail-price"
                 >Rp 0</span
               >
-              >
-              <!-- Removed Old Price as requested -->
-              <!-- Removed Old Price as requested -->
             </div>
 
             <!-- Variant: Color -->
@@ -1119,16 +1144,60 @@
       }
 
       // --- 5. CAROUSEL LOGIC ---
+      // --- 5. CAROUSEL LOGIC ---
       let currentSlide = 0;
-      function initCarousel() {
-        const slides = document.querySelectorAll(".carousel-item");
-        if (slides.length === 0) return;
+      let slideInterval;
 
-        setInterval(() => {
-          slides[currentSlide].classList.remove("active");
-          currentSlide = (currentSlide + 1) % slides.length;
-          slides[currentSlide].classList.add("active");
+      function initCarousel() {
+        startSlideTimer();
+      }
+
+      function startSlideTimer() {
+        // Clear existing to prevent duplicates
+        if (slideInterval) clearInterval(slideInterval);
+        slideInterval = setInterval(() => {
+          nextSlide();
         }, 5000); // 5 seconds
+      }
+
+      function updateCarouselUI() {
+        const slides = document.querySelectorAll(".carousel-item");
+        const indicators = document.querySelectorAll(".indicator-btn");
+
+        // Slides
+        slides.forEach((sl, idx) => {
+          if (idx === currentSlide) {
+            sl.classList.add("active");
+          } else {
+            sl.classList.remove("active");
+          }
+        });
+
+        // Indicators
+        indicators.forEach((ind, idx) => {
+          if (idx === currentSlide) {
+            ind.classList.remove("opacity-50");
+            ind.classList.add("opacity-100");
+          } else {
+            ind.classList.remove("opacity-100");
+            ind.classList.add("opacity-50");
+          }
+        });
+      }
+
+      function goToSlide(n) {
+        const slides = document.querySelectorAll(".carousel-item");
+        currentSlide = (n + slides.length) % slides.length; // Handle wrapping
+        updateCarouselUI();
+        startSlideTimer(); // Reset timer on manual interaction
+      }
+
+      function nextSlide() {
+        goToSlide(currentSlide + 1);
+      }
+
+      function prevSlide() {
+        goToSlide(currentSlide - 1);
       }
 
       // --- 6. SHOP LOGIC (Filters) ---
